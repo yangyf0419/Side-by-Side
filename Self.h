@@ -16,5 +16,7 @@ public:
 	Self(int, int, int, int, bool);
 	QColor color() const;
 	QColor convert();
+	Self operator+=(int);
+	Self operator-=(int);
 };
 #endif//SELF_H

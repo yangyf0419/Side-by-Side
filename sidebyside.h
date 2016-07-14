@@ -11,6 +11,7 @@ class SidebySide : public QWidget {
 
 public:
 	SidebySide(QWidget *parent = 0);
+	~SidebySide();
 
 protected:
 	virtual void paintEvent(QPaintEvent* );
@@ -36,9 +37,11 @@ private:
 	int endTimeID;
 	int endcount;
 	Self* endself;//触发死亡的移动块
+	bool start0, start1;
 	bool isend;
 	QPainter *paint;
 	QSet<Qt::Key> key;//已经按下的按键
+	QQueue<int> high_score;
 
 	void initialize();
 	void refresh();
@@ -46,6 +49,9 @@ private:
 	void generate_new();
 	void end(Self* );
 	void restart();
+	void store();
 };
+
+void sort(QQueue<int>& ); //in main.cpp
 
 #endif // SIDEBYSIDE_H

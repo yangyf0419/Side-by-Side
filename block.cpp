@@ -10,7 +10,15 @@ QColor Block::color() const {
 	return mycolor ? QColor(255, 60 + colorindex, 60 + colorindex) : QColor(60 + colorindex, 60 + colorindex, 255);
 }
 
-bool Block::adjust_horizontal(Self* myself) {
+NormalBlock::NormalBlock(int leftboundary, bool color)
+	:Block(leftboundary, color) {}
+
+QColor NormalBlock::color() const {
+	return Block::color();
+}
+
+
+bool NormalBlock::adjust_horizontal(Self* myself) {
 	if (!intersects(*myself))
 		return 0;
 	if (left() > myself -> left())
@@ -20,11 +28,11 @@ bool Block::adjust_horizontal(Self* myself) {
 	return 0;
 }
 
-bool Block::adjust_vertical(Self* myself) {
+bool NormalBlock::adjust_vertical(Self* myself) {
 	if (!intersects(*myself))
 		return 0;
 	if (top() > myself -> top())
-		myself -> moveBottom(top() - 1);
+		myself -> moveBottom(top());
 	else
 		myself -> moveTop(bottom() + 1);
 	return 0;

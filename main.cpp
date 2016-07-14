@@ -8,3 +8,17 @@ int main(int argc, char *argv[])
 	MyMainWindow -> show();
 	return app.exec();
 }
+
+void sort(QQueue<int>& queue) {
+	int tmp;
+	for (QQueue<int>::iterator i = queue.end() - 1; i != queue.begin(); i--) 
+		if (*i < *(i - 1)) {
+			tmp = *i;
+			*i = *(i - 1);
+			*(i - 1) = tmp;
+		}
+		else
+			break;
+}
+
+
