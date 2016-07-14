@@ -8,21 +8,20 @@
 class Block: public QRect
 {
 public:
-	Block(int);
-	virtual Qt::GlobalColor color() const;
+	Block(int, bool);
+	virtual QColor color() const;
 	virtual bool adjust_horizontal(Self* );
 	virtual bool adjust_vertical(Self* );
 
 private:
-	static const Qt::GlobalColor colors[9];
+	bool mycolor;//false对应蓝色系，true对应红色系
 	int colorindex;
-
 };
 
 class DeadBlock: public Block {
 public:
-	DeadBlock(int);
-	virtual Qt::GlobalColor color() const;
+	DeadBlock(int, bool);
+	virtual QColor color() const;
 	virtual bool adjust_horizontal(Self* );
 	virtual bool adjust_vertical(Self* );
 };

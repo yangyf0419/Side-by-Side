@@ -1,21 +1,22 @@
 #include "block.h"
 #include <qdatetime.h>
-Block::Block(int leftboundary)
-	:QRect(leftboundary, -40, 110, 40) {
-	colorindex = qrand() % 9;
+Block::Block(int leftboundary, bool color)
+	:QRect(leftboundary, -40, 110, 80) {
+	colorindex = qrand() % 100;
+	mycolor = color;
 }
 
-Qt::GlobalColor Block::color() const {
-	return colors[colorindex];
+QColor Block::color() const {
+	return mycolor ? QColor(255, 60 + colorindex, 60 + colorindex) : QColor(60 + colorindex, 60 + colorindex, 255);
 }
 
 bool Block::adjust_horizontal(Self* myself) {
 	if (!intersects(*myself))
 		return 0;
 	if (left() > myself -> left())
-		myself -> moveRight(left());
+		myself -> moveRight(left() - 1);
 	else
-		myself -> moveLeft(right());
+		myself -> moveLeft(right() + 1);
 	return 0;
 }
 
@@ -23,17 +24,17 @@ bool Block::adjust_vertical(Self* myself) {
 	if (!intersects(*myself))
 		return 0;
 	if (top() > myself -> top())
-		myself -> moveBottom(top());
+		myself -> moveBottom(top() - 1);
 	else
-		myself -> moveTop(bottom());
+		myself -> moveTop(bottom() + 1);
 	return 0;
 }
 
-DeadBlock::DeadBlock(int leftboundary)
-	:Block(leftboundary) {}
+DeadBlock::DeadBlock(int leftboundary, bool color)
+	:Block(leftboundary, color) {}
 
-Qt::GlobalColor DeadBlock::color() const {
-	return Qt::black;
+QColor DeadBlock::color() const {
+	return QColor(0, 0, 0);
 }
 
 bool DeadBlock::adjust_horizontal(Self* myself) {
@@ -46,15 +47,3 @@ bool DeadBlock::adjust_vertical(Self* myself) {
 		return true;
 	return false;
 }	
-
-const Qt::GlobalColor Block::colors[9] = {
-	Qt::green,
-	Qt::blue,
-	Qt::magenta,
-	Qt::yellow,
-	Qt::darkRed,
-	Qt::darkGreen,
-	Qt::darkBlue,
-	Qt::darkMagenta,
-	Qt::darkYellow
-};

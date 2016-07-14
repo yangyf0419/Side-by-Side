@@ -1,6 +1,7 @@
 #ifndef SELF_H
 #define SELF_H
 #include <QRect>
+#include <qcolor.h>
 
 class Self:public QRect {
 
@@ -10,7 +11,10 @@ class Self:public QRect {
 	int rightbound;
 	int bottombound;
 	int topbound;
+	QColor mycolor;
 public:
-	Self(int, int, int, int);
+	Self(int, int, int, int, bool);
+	QColor color() const;
+	QColor convert();
 };
 #endif//SELF_H
