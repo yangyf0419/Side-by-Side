@@ -13,8 +13,8 @@ public:
 	virtual bool adjust_vertical(Self* ) = 0;
 
 private:
-	bool mycolor;//false对应蓝色系，true对应红色系
-	int colorindex;
+	bool myside;//false对应蓝色系，true对应红色系
+	QColor mycolor;
 };
 
 class NormalBlock: public Block {

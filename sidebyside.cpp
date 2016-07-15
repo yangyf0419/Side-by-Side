@@ -1,7 +1,6 @@
 #include "sidebyside.h"
 #include <QDesktopwidget>
 #include <QTimer>
-#include <qfont.h>
 
 SidebySide::SidebySide(QWidget* parent)
 	:QWidget(parent) {
@@ -14,8 +13,14 @@ SidebySide::SidebySide(QWidget* parent)
 		setFixedSize(800, 800);
 		qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
 
+		brush = new QBrush;
+		font = new QFont;
+		pen = new QPen;
+		paint = new QPainter;
+		color = new QColor;
+
 		int tmp;
-		QFile file("score");
+		QFile file("score.sc");
 		for (int i = 0; i < 5; i++)
 			high_score.enqueue(0);
 		if (file.open(QFile::ReadOnly)) {  
@@ -38,89 +43,125 @@ SidebySide::~SidebySide() {
 	obstacle0.clear();
 	obstacle1.clear();
 	high_score.clear();
+	delete font;
+	delete brush;
+	delete pen;
+	delete paint;
+	delete color;
 	delete myself0, myself1;
 }
 
 void SidebySide::paintEvent(QPaintEvent* ) {
-	paint = new QPainter;
 	paint -> begin(this);
 
 	//绘制装饰矩形
-	paint -> setBrush(QBrush(Qt::black, Qt::SolidPattern));
-	int start = (decotop + pos) % (recheight + decospace) - recheight;
-	for (; start <= decobottom; start += (decospace + recheight)) {
-		paint -> drawRect(decoleft1, start, recwidth, recheight);
-		paint -> drawRect(decoright1, start, recwidth, recheight);
-		paint -> drawRect(decoleft2, start, recwidth, recheight);
-		paint -> drawRect(decoright2, start, recwidth, recheight);
-	}
+	pen -> setColor(Qt::black);
+	pen -> setWidth(1);
+	paint -> setPen(*pen);
+	brush -> setColor(Qt::black);
+	brush -> setStyle(Qt::SolidPattern);
+	paint -> setBrush(*brush);
+	for (QQueue<QRect>::iterator i = decoration.begin(); i != decoration.end(); i++)
+		paint -> drawRect(*i);
 
-	paint -> setPen(QPen(myself0 -> color(), 1));
-	paint -> setBrush(QBrush(myself0 -> color(), Qt::SolidPattern));
+	pen -> setColor(myself0 -> color());
+	brush -> setColor(myself0 -> color());
+	paint -> setPen(*pen);
+	paint -> setBrush(*brush);
 	paint -> drawRect(*myself0);
 
-	paint -> setPen(QPen(myself1 -> color(), 1));
-	paint -> setBrush(QBrush(myself1 -> color(), Qt::SolidPattern));
+	pen -> setColor(myself1 -> color());
+	brush -> setColor(myself1 -> color());
+	paint -> setPen(*pen);
+	paint -> setBrush(*brush);
 	paint -> drawRect(*myself1);
 
 	for (QList<Block* >::iterator i = obstacle0.begin(); i != obstacle0.end(); i++) {
-		paint -> setPen(QPen((*i) -> color(), 1));
-		paint -> setBrush(QBrush((*i) -> color(), Qt::SolidPattern));
+		pen -> setColor((*i) -> color());
+		brush -> setColor((*i) -> color());
+		paint -> setPen(*pen);
+		paint -> setBrush(*brush);
 		paint -> drawRect(**i);
 	}
 	for (QList<Block* >::iterator i = obstacle1.begin(); i != obstacle1.end(); i++) {
-		paint -> setPen(QPen((*i) -> color(), 1));
-		paint -> setBrush(QBrush((*i) -> color(), Qt::SolidPattern));
+		pen -> setColor((*i) -> color());
+		brush -> setColor((*i) -> color());
+		paint -> setPen(*pen);
+		paint -> setBrush(*brush);
 		paint -> drawRect(**i);
 	}
 
-	paint -> setPen(QPen(Qt::cyan, 1));
-	paint -> setBrush(QBrush(Qt::cyan, Qt::SolidPattern));
+	pen -> setColor(Qt::cyan);
+	brush -> setColor(Qt::cyan);
+	paint -> setPen(*pen);
+	paint -> setBrush(*brush);
 	paint -> drawRect(300, 0, 200, 20);
-	paint -> setPen(QPen(QColor(255, 60, 60), 1));
-	paint -> setBrush(QBrush(QColor(255, 60, 60), Qt::SolidPattern));
+	color -> setRgb(255, 60, 60);
+	pen -> setColor(*color);
+	brush -> setColor(*color);
+	paint -> setPen(*pen);
+	paint -> setBrush(*brush);
 	paint -> drawRect(500, 0, 300, 20);
-	paint -> setPen(QPen(QColor(60, 60, 255), 1));
-	paint -> setBrush(QBrush(QColor(60, 60, 255), Qt::SolidPattern));
+	color -> setRgb(60, 60, 255);
+	pen -> setColor(*color);
+	brush -> setColor(*color);
+	paint -> setPen(*pen);
+	paint -> setBrush(*brush);
 	paint -> drawRect(0, 0, 300, 20);
 
 	paint -> setPen(Qt::black);
-	paint -> drawText(QRect(300, 0, 200, 20), Qt::AlignHCenter, tr("TOTAL SCORE: %1").arg(score0 + score1));
-	paint -> setPen(QColor(172, 203, 249));
-	paint -> drawText(QRect(50, 0, 200, 20), Qt::AlignHCenter, tr("SCORE: %1").arg(score0));
-	paint -> setPen(QColor(252, 177, 154));
-	paint -> drawText(QRect(550, 0, 200, 20), Qt::AlignHCenter, tr("SCORE: %1").arg(score1));
+	paint -> drawText(300, 0, 200, 20, Qt::AlignHCenter, tr("TOTAL SCORE: %1").arg(score0 + score1));
+	color -> setRgb(172, 203, 249);
+	pen -> setColor(*color);
+	paint -> drawText(50, 0, 200, 20, Qt::AlignHCenter, tr("SCORE: %1").arg(score0));
+	color -> setRgb(252, 177, 154);
+	pen -> setColor(*color);
+	paint -> drawText(550, 0, 200, 20, Qt::AlignHCenter, tr("SCORE: %1").arg(score1));
 
 	//说明
 	if (!start0) {
-		paint -> setFont(QFont("Batang",15,QFont::Bold,false));
-		paint -> setPen(QPen(Qt::black, 3));
-		paint -> setBrush(QBrush(Qt::cyan, Qt::SolidPattern));
+		font -> setFamily("Batang");
+		font -> setPointSize(15);
+		font -> setWeight(QFont::Bold);
+		pen -> setColor(Qt::black);
+		pen -> setWidth(3);
+		brush -> setColor(Qt::cyan);
+		paint -> setFont(*font);
+		paint -> setPen(*pen);
+		paint -> setBrush(*brush);
 		paint -> drawRect(175, 400, 50, 50);
 		paint -> drawRect(115, 460, 50, 50);
 		paint -> drawRect(175, 460, 50, 50);
 		paint -> drawRect(235, 460, 50, 50);
-		paint -> drawText(QRect(177, 398, 50, 50), Qt::AlignLeft | Qt::AlignBottom, tr("W"));
-		paint -> drawText(QRect(117, 458, 50, 50), Qt::AlignLeft | Qt::AlignBottom, tr("A"));
-		paint -> drawText(QRect(177, 458, 50, 50), Qt::AlignLeft | Qt::AlignBottom, tr("S"));
-		paint -> drawText(QRect(237, 458, 50, 50), Qt::AlignLeft | Qt::AlignBottom, tr("D"));
-		paint -> drawText(QRect(0, 540, 400, 50), Qt::AlignHCenter, tr("Don't hit the BLACK block!"));
+		paint -> drawText(177, 398, 50, 50, Qt::AlignLeft | Qt::AlignBottom, tr("W"));
+		paint -> drawText(117, 458, 50, 50, Qt::AlignLeft | Qt::AlignBottom, tr("A"));
+		paint -> drawText(177, 458, 50, 50, Qt::AlignLeft | Qt::AlignBottom, tr("S"));
+		paint -> drawText(237, 458, 50, 50, Qt::AlignLeft | Qt::AlignBottom, tr("D"));
+		paint -> drawText(0, 540, 400, 50, Qt::AlignHCenter, tr("Don't hit the BLACK block!"));
 	}
 	if (!start1) {
-		paint -> setFont(QFont("Batang",10,QFont::Bold,false));
-		paint -> setPen(QPen(Qt::black, 3));
-		paint -> setBrush(QBrush(Qt::cyan, Qt::SolidPattern));
+		font -> setFamily("Batang");
+		font -> setPointSize(10);
+		font -> setWeight(QFont::Bold);
+		pen -> setColor(Qt::black);
+		pen -> setWidth(3);
+		brush -> setColor(Qt::cyan);
+		paint -> setFont(*font);
+		paint -> setPen(*pen);
+		paint -> setBrush(*brush);
 		paint -> drawRect(575, 400, 50, 50);
 		paint -> drawRect(515, 460, 50, 50);
 		paint -> drawRect(575, 460, 50, 50);
 		paint -> drawRect(635, 460, 50, 50);
-		paint -> drawText(QRect(577, 398, 50, 50), Qt::AlignLeft | Qt::AlignBottom, tr("Up"));
-		paint -> drawText(QRect(517, 458, 50, 50), Qt::AlignLeft | Qt::AlignBottom, tr("Left"));
-		paint -> drawText(QRect(577, 458, 50, 50), Qt::AlignLeft | Qt::AlignBottom, tr("Down"));
-		paint -> drawText(QRect(637, 458, 50, 50), Qt::AlignLeft | Qt::AlignBottom, tr("Right"));
-		paint -> setFont(QFont("Batang",15,QFont::Bold,false));
-		paint -> drawText(QRect(400, 540, 400, 50), Qt::AlignHCenter, tr("The BLACK block is fatal!"));
+		paint -> drawText(577, 398, 50, 50, Qt::AlignLeft | Qt::AlignBottom, tr("Up"));
+		paint -> drawText(517, 458, 50, 50, Qt::AlignLeft | Qt::AlignBottom, tr("Left"));
+		paint -> drawText(577, 458, 50, 50, Qt::AlignLeft | Qt::AlignBottom, tr("Down"));
+		paint -> drawText(637, 458, 50, 50, Qt::AlignLeft | Qt::AlignBottom, tr("Right"));
+		font -> setPointSize(15);
+		paint -> setFont(*font);
+		paint -> drawText(400, 540, 400, 50, Qt::AlignHCenter, tr("The BLACK block is fatal!"));
 	}
+	paint -> end();
 };
 
 void SidebySide::keyPressEvent(QKeyEvent *event) {
@@ -161,7 +202,6 @@ void SidebySide::initialize() {
 	endcount = 0;
 	score0 = 0;
 	score1 = 0;
-	pos = 1;
 	time = 0;
 	start0 = false;
 	start1 = false;
@@ -171,14 +211,27 @@ void SidebySide::initialize() {
 	myTimeID = startTimer(3);
 	blockTimeID = startTimer(1500);
 	endTimeID = 0;
+
+	for (int i = decobottom; i > decotop - recheight; i -= (decospace + recheight)) {
+		decoration.enqueue(QRect(decoleft1, i, recwidth, recheight));
+		decoration.enqueue(QRect(decoleft2, i, recwidth, recheight));
+		decoration.enqueue(QRect(decoright1, i, recwidth, recheight));
+		decoration.enqueue(QRect(decoright2, i, recwidth, recheight));
+	}
 	myself0 = new Self(decoleft1 + recwidth, decoright1, decotop + 20, decobottom, 0);
 	myself1 = new Self(decoleft2 + recwidth, decoright2, decotop + 20, decobottom, 1);
 
 }
 
 void SidebySide::refresh() {
-	pos += speed;
+	while (decoration.head().top() > decobottom) {
+		QRect tmp = decoration.dequeue();
+		tmp.moveBottom(tmp.bottom() - decobottom - recheight + decotop);
+		decoration.enqueue(tmp);
+	}
 
+	for (QQueue<QRect>::iterator i = decoration.begin(); i != decoration.end(); i++)
+		i -> moveBottom(i -> bottom() + speed);
 	if (!start0 || !start1)
 		return;
 
@@ -419,6 +472,7 @@ void SidebySide::restart() {
 	if(QMessageBox::No == choice){
 		store();
 	}
+	decoration.clear();
 	for (QList<Block* >::iterator i = obstacle0.begin(); i != obstacle0.end(); i++)
 		delete *i;
 	for (QList<Block* >::iterator i = obstacle1.begin(); i != obstacle1.end(); i++)
@@ -431,7 +485,7 @@ void SidebySide::restart() {
 }
 
 void SidebySide::store() {
-	QFile file("score");
+	QFile file(tr("score.sc"));
 	if (file.open(QFile::WriteOnly | QFile::Truncate)) {  
 		QTextStream out(&file);
 		for (int i = 0; i < 5; i++)

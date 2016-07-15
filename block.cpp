@@ -1,17 +1,18 @@
 #include "block.h"
 #include <qdatetime.h>
-Block::Block(int leftboundary, bool color)
+Block::Block(int leftboundary, bool side)
 	:QRect(leftboundary, -40, 110, 80) {
-	colorindex = qrand() % 100;
-	mycolor = color;
+		int tmp = qrand() % 100;
+	myside = side;
+	mycolor = side ? QColor(255, 60 + tmp, 60 + tmp) : QColor(60 + tmp, 60 + tmp, 255);
 }
 
 QColor Block::color() const {
-	return mycolor ? QColor(255, 60 + colorindex, 60 + colorindex) : QColor(60 + colorindex, 60 + colorindex, 255);
+	return mycolor;
 }
 
-NormalBlock::NormalBlock(int leftboundary, bool color)
-	:Block(leftboundary, color) {}
+NormalBlock::NormalBlock(int leftboundary, bool side)
+	:Block(leftboundary, side) {}
 
 QColor NormalBlock::color() const {
 	return Block::color();
@@ -38,11 +39,11 @@ bool NormalBlock::adjust_vertical(Self* myself) {
 	return 0;
 }
 
-DeadBlock::DeadBlock(int leftboundary, bool color)
-	:Block(leftboundary, color) {}
+DeadBlock::DeadBlock(int leftboundary, bool side)
+	:Block(leftboundary, side) {}
 
 QColor DeadBlock::color() const {
-	return QColor(0, 0, 0);
+	return Qt::black;
 }
 
 bool DeadBlock::adjust_horizontal(Self* myself) {

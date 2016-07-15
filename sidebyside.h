@@ -26,7 +26,6 @@ private:
 	enum decosize{recwidth = 20, recheight = 80};//装饰长方形的宽和高
 	//装饰长方形的起始位置，结束位置及间隔
 	enum decopos{decotop = 0, decobottom = 800, decospace = 20, decoleft1 = 5, decoright1 = 375, decoleft2 = 405, decoright2 = 775};
-	int pos;//两侧装饰块的起始位置
 	int score0;//左边得分
 	int score1;//右边得分
 	int time;//游戏时间
@@ -36,10 +35,15 @@ private:
 	int blockTimeID;//障碍块计时器
 	int endTimeID;
 	int endcount;
-	Self* endself;//触发死亡的移动块
+	QBrush *brush;
+	QFont *font;
+	QPen *pen;
+	QPainter *paint;
+	QColor* color;
+	Self *endself;//触发死亡的移动块
 	bool start0, start1;
 	bool isend;
-	QPainter *paint;
+	QQueue<QRect> decoration;
 	QSet<Qt::Key> key;//已经按下的按键
 	QQueue<int> high_score;
 
